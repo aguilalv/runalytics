@@ -3,8 +3,8 @@ import pytest
 import json
 import httpretty
 
-import requests
-
+from .fixtures import enable_httpretty, set_get_user_to_return_valid_users, set_get_token_to_return_token_list
+from .fixtures import USER_LIST, TOKEN_LIST
 import runalytics.helpers
 
 #class TestGetUserTokens(object):
@@ -12,34 +12,6 @@ import runalytics.helpers
 
 SERVER_ADDRESS = os.environ.get('JUSTLETIC_SERVER_ADDRESS')
 ADMIN_TOKEN = os.environ.get('JUSTLETIC_ADMIN_TOKEN')
-
-USER_LIST = [{"id": 1,"username": "edith@mailinator.com"},
-    {"id": 2,"username": "joe@mailinator.com"},
-    {"id": 3,"username": "admin"}]
-TOKEN_LIST = [{"user_id": 1,"key": "173ce3ae65b1afbd5df6d16e564a085755d2f9d2"},
-    {"user_id": 2,"key": "52ad621f36ca868405b3c3afece8da650dca34d5"},
-    {"user_id": 3,"key": "5935e11788b40f18f95cc7c70ddb876a3ff3bf41"}]
-
-@pytest.fixture
-def enable_httpretty():
-    httpretty.enable()
-    yield
-    httpretty.disable()
-    httpretty.reset()
-
-@pytest.fixture
-def set_get_user_to_return_valid_users():
-    httpretty.register_uri(
-        httpretty.GET,
-        f"http://{SERVER_ADDRESS}/API/user/",
-        body= json.dumps(USER_LIST))
-
-@pytest.fixture
-def set_get_token_to_return_token_list():
-    httpretty.register_uri(
-        httpretty.GET,
-        f"http://{SERVER_ADDRESS}/API/token/",
-        body= json.dumps(TOKEN_LIST))
 
 def test_sends_get_request_to_user_and_token_api_endpoints(
     enable_httpretty,set_get_user_to_return_valid_users,set_get_token_to_return_token_list):
