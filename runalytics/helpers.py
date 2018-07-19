@@ -19,7 +19,7 @@ def get_strava_key(justletic_token):
     if response.status_code != 200:
         return None
     received_data = json.loads(response.text)
-    return received_data.get('key')
+    return received_data.get('token')
 
 class JustleticUser(object):
 
@@ -29,6 +29,7 @@ class JustleticUser(object):
             self.justletic_token = get_justletic_token(user_id)
         except StopIteration:
             raise IndexError()
+        self.strava_key = get_strava_key(self.justletic_token)
 
 #def get_user_activities(user_id):
 #        user_tokens = get_user_tokens()

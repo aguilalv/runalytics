@@ -4,7 +4,7 @@ import json
 import httpretty
 
 from .fixtures import enable_httpretty, set_get_user_to_return_valid_users, set_get_token_to_return_token_list,set_strava_get_stream_to_ok_data,set_get_key_to_ok_data
-from .fixtures import USER_LIST, TOKEN_LIST
+from .fixtures import USER_LIST, TOKEN_LIST, STRAVA_KEY_SINGLE
 import runalytics.helpers
 
 SERVER_ADDRESS = os.environ.get('JUSTLETIC_SERVER_ADDRESS')
@@ -58,11 +58,9 @@ class TestJustleticUserInit(object):
         user = runalytics.helpers.JustleticUser(TOKEN_LIST[2].get('user_id'))
         assert user.justletic_token == TOKEN_LIST[2].get('key') 
 
-    @pytest.mark.xfail()
-    def test_stores_strava_token(self,enable_httpretty,set_get_token_to_return_token_list,set_get_key_to_ok_data):
+    def test_stores_strava_key(self,enable_httpretty,set_get_token_to_return_token_list,set_get_key_to_ok_data):
         user = runalytics.helpers.JustleticUser(TOKEN_LIST[2].get('user_id'))
-#        assert user.justletic_token == TOKEN_LIST[2].get('key')
-        pytest.fail('Finish this test')
+        assert user.strava_key == STRAVA_KEY_SINGLE.get('token')
 
     def test_raises_exception_if_user_does_not_exist(self,enable_httpretty,set_get_token_to_return_token_list,set_get_key_to_ok_data):
         with pytest.raises(IndexError):
