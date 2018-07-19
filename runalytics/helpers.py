@@ -30,16 +30,14 @@ class JustleticUser(object):
         except StopIteration:
             raise IndexError()
         self.strava_key = get_strava_key(self.justletic_token)
-
-#def get_user_activities(user_id):
-#        user_tokens = get_user_tokens()
-#        token = next(x.get('token') for x in user_tokens if x.get('id')==user_id)
-#        
-#        headers = {'Authorization': 'Token ' + token}
-#        response = requests.get(f"http://{SERVER_ADDRESS}/API/key/", headers=headers)
-#
-#        credentials = json.loads(response.text)
-#
-#        print(f'<<<< {credentials.get["token"]} // {credentials.get["strava_id"]}')
-    
-
+        self.update_activity_ids()
+         
+    def update_activity_ids(self):
+        headers = {'Authorization': f'Bearer {self.strava_key}'}
+        response = requests.get(f"https://www.strava.com/api/v3/activities/", headers=headers)
+        if response.status_code != 200:
+            raise Exception() 
+        received_data = json.loads(response.text)
+        self.activity_ids = []
+        for activity in received_data:
+            self.activity_ids.append(activity.get('id'))

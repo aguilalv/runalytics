@@ -3,8 +3,8 @@ import pytest
 import json
 import httpretty
 
-from .fixtures import enable_httpretty, set_get_user_to_return_valid_users, set_get_token_to_return_token_list,set_strava_get_stream_to_ok_data,set_get_key_to_ok_data, set_get_token_to_return_401_error, set_get_key_to_return_401_error
-from .fixtures import USER_LIST, TOKEN_LIST, STRAVA_KEY_SINGLE
+from .fixtures import enable_httpretty, set_get_user_to_return_valid_users, set_get_token_to_return_token_list,set_get_key_to_ok_data, set_get_token_to_return_401_error, set_get_key_to_return_401_error,set_strava_activities_ok_data, set_strava_activities_to_return_404_error
+from .fixtures import USER_LIST, TOKEN_LIST, STRAVA_KEY_SINGLE, STRAVA_ACTIVITIES
 import runalytics.helpers
 
 SERVER_ADDRESS = os.environ.get('JUSTLETIC_SERVER_ADDRESS')
@@ -58,22 +58,36 @@ class TestGetStravaKey(object):
 class TestJustleticUserInit(object):
     """Tests for Init method of user class"""
 
-    def test_stores_user_id(self,enable_httpretty,set_get_token_to_return_token_list,set_get_key_to_ok_data):
+    def test_stores_user_id(self,enable_httpretty,set_get_token_to_return_token_list,set_get_key_to_ok_data,set_strava_activities_ok_data):
         user = runalytics.helpers.JustleticUser(2)
         assert user.id == 2
 
-    def test_stores_user_token(self,enable_httpretty,set_get_token_to_return_token_list,set_get_key_to_ok_data):
+    def test_stores_user_token(self,enable_httpretty,set_get_token_to_return_token_list,set_get_key_to_ok_data,set_strava_activities_ok_data):
         user = runalytics.helpers.JustleticUser(TOKEN_LIST[2].get('user_id'))
         assert user.justletic_token == TOKEN_LIST[2].get('key') 
 
-    def test_stores_strava_key(self,enable_httpretty,set_get_token_to_return_token_list,set_get_key_to_ok_data):
+    def test_stores_strava_key(self,enable_httpretty,set_get_token_to_return_token_list,set_get_key_to_ok_data,set_strava_activities_ok_data):
         user = runalytics.helpers.JustleticUser(TOKEN_LIST[2].get('user_id'))
         assert user.strava_key == STRAVA_KEY_SINGLE.get('token')
+
+    def test_stores_activity_ids(self,enable_httpretty,set_get_token_to_return_token_list,set_get_key_to_ok_data,set_strava_activities_ok_data):
+        user = runalytics.helpers.JustleticUser(TOKEN_LIST[2].get('user_id'))
+        assert STRAVA_ACTIVITIES[0].get('id') in user.activity_ids
+        assert STRAVA_ACTIVITIES[1].get('id') in user.activity_ids
 
     def test_raises_exception_if_user_does_not_exist(self,enable_httpretty,set_get_token_to_return_token_list,set_get_key_to_ok_data):
         with pytest.raises(IndexError):
             user = runalytics.helpers.JustleticUser(999)
 
-class TestJustleticUserGetActivities(object):
-    """Test for get_activities method of JustleticUser class"""
-    pass
+    def test_raise_exception_if_key_request_fails(self,enable_httpretty,set_get_token_to_return_token_list,set_get_key_to_return_401_error):
+        with pytest.raises(Exception):
+            user = runalytics.helpers.JustleticUser(TOKEN_LIST[2].get('user_id'))
+
+    def test_raise_exception_if_token_request_fails(self,enable_httpretty,set_get_token_to_return_401_error):
+        with pytest.raises(Exception):
+            user = runalytics.helpers.JustleticUser(TOKEN_LIST[2].get('user_id'))
+
+    def test_stores_activity_ids(self,enable_httpretty,set_get_token_to_return_token_list,set_get_key_to_ok_data,set_strava_activities_to_return_404_error):
+        with pytest.raises(Exception):
+            user = runalytics.helpers.JustleticUser(TOKEN_LIST[2].get('user_id'))
+        

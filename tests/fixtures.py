@@ -15,6 +15,37 @@ STRAVA_KEY_SINGLE = {
     "token": "4b177fb1430b99d30a4966e01f5582f34170e912",
     "strava_id": "21400992"}
 
+STRAVA_ACTIVITIES = [
+    {"id" : 123456778928065,
+        "athlete" : {
+            "id" : 12343545645788,
+            "resource_state" : 1
+        },
+    "name" : "Chill Day",
+    "distance" : 0,
+    "moving_time" : 18373,
+    "elapsed_time" : 18373,
+    "total_elevation_gain" : 0,
+    "type" : "Ride",
+    "start_date" : "2018-02-20T18:02:13Z",
+    "start_date_local" : "2018-02-20T10:02:13Z",
+    },
+    {"id" : 111111111111111,
+        "athlete" : {
+            "id" : 12343545645788,
+            "resource_state" : 1
+        },
+    "name" : "Chill Day",
+    "distance" : 0,
+    "moving_time" : 18000,
+    "elapsed_time" : 18000,
+    "total_elevation_gain" : 10,
+    "type" : "Run",
+    "start_date" : "2018-02-19T18:02:13Z",
+    "start_date_local" : "2018-02-19T10:02:13Z",
+    },
+]
+
 @pytest.fixture
 def enable_httpretty():
     httpretty.enable()
@@ -46,12 +77,6 @@ def set_get_token_to_return_401_error():
     )
 
             
-@pytest.fixture
-def set_strava_get_stream_to_ok_data():
-    httpretty.register_uri(
-        httpretty.GET,
-        f'https://www.strava.com/api/v3/activities/1/streams',
-        body= json.dumps(USER_LIST))
 
 @pytest.fixture
 def set_get_key_to_ok_data():
@@ -68,4 +93,21 @@ def set_get_key_to_return_401_error():
         f"http://{SERVER_ADDRESS}/API/key/",
         body = '"detail": "Authentication credentials were not provided."',
         status = 401
+    )
+
+@pytest.fixture
+def set_strava_activities_ok_data():
+    httpretty.register_uri(
+        httpretty.GET,
+        f'https://www.strava.com/api/v3/activities/',
+        body= json.dumps(STRAVA_ACTIVITIES)
+    )
+
+@pytest.fixture
+def set_strava_activities_to_return_404_error():
+    httpretty.register_uri(
+        httpretty.GET,
+        f'https://www.strava.com/api/v3/activities/',
+        body = '"xxx": "xxx"',
+        status = 404
     )
