@@ -33,7 +33,7 @@ class TestGetJustleticToken(object):
         assert ret_token == TOKEN_LIST[2].get('key')
 
     def test_returns_none_if_user_doesnt_exist(self): 
-        ret_token = runalytics.helpers.get_justletic_token(10)
+        ret_token = runalytics.helpers.get_justletic_token(999)
         assert ret_token == None    
         
 class TestJustleticUserInit(object):
@@ -42,4 +42,12 @@ class TestJustleticUserInit(object):
     def test_stores_user_id(self,enable_httpretty,set_get_user_to_return_valid_users,set_get_token_to_return_token_list,set_get_key_to_ok):
         user = runalytics.helpers.JustleticUser(2)
         assert user.id == 2
+
+    def test_stores_user_token(self,enable_httpretty,set_get_user_to_return_valid_users,set_get_token_to_return_token_list,set_get_key_to_ok):
+        user = runalytics.helpers.JustleticUser(TOKEN_LIST[2].get('user_id'))
+        assert user.justletic_token == TOKEN_LIST[2].get('key')
+
+    def test_raises_exception_if_user_does_not_exist(self,enable_httpretty,set_get_user_to_return_valid_users,set_get_token_to_return_token_list,set_get_key_to_ok):
+        with pytest.raises(IndexError):
+            user = runalytics.helpers.JustleticUser(999)
 

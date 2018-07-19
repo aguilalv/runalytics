@@ -17,6 +17,10 @@ class JustleticUser(object):
 
     def __init__(self,user_id):
         self.id = user_id
+        try:
+            self.justletic_token = get_justletic_token(user_id)
+        except StopIteration:
+            raise IndexError()
 
 #def get_user_activities(user_id):
 #        user_tokens = get_user_tokens()
