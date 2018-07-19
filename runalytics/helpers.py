@@ -9,7 +9,7 @@ def get_justletic_token(user_id):
     headers = {'Authorization': 'Token ' + ADMIN_TOKEN}
     response = requests.get(f"http://{SERVER_ADDRESS}/API/token/", headers=headers)
     if response.status_code != 200:
-        return None
+        raise Exception()
     token_list = json.loads(response.text)
     return next(x.get('key') for x in token_list if x.get('user_id') == user_id)
 
@@ -17,7 +17,7 @@ def get_strava_key(justletic_token):
     headers = {'Authorization': f'Token {justletic_token}'}
     response = requests.get(f"http://{SERVER_ADDRESS}/API/key/", headers=headers)
     if response.status_code != 200:
-        return None
+        raise Exception()
     received_data = json.loads(response.text)
     return received_data.get('token')
 

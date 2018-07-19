@@ -37,6 +37,16 @@ def set_get_token_to_return_token_list():
         body= json.dumps(TOKEN_LIST))
 
 @pytest.fixture
+def set_get_token_to_return_401_error():
+    httpretty.register_uri(
+        httpretty.GET,
+        f"http://{SERVER_ADDRESS}/API/token/",
+        body = '"detail": "Authentication credentials were not provided."',
+        status = 401
+    )
+
+            
+@pytest.fixture
 def set_strava_get_stream_to_ok_data():
     httpretty.register_uri(
         httpretty.GET,
@@ -49,4 +59,13 @@ def set_get_key_to_ok_data():
         httpretty.GET,
         f"http://{SERVER_ADDRESS}/API/key/",
         body = json.dumps(STRAVA_KEY_SINGLE)
+    )
+
+@pytest.fixture
+def set_get_key_to_return_401_error():
+    httpretty.register_uri(
+        httpretty.GET,
+        f"http://{SERVER_ADDRESS}/API/key/",
+        body = '"detail": "Authentication credentials were not provided."',
+        status = 401
     )

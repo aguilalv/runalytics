@@ -3,7 +3,7 @@ import pytest
 import json
 import httpretty
 
-from .fixtures import enable_httpretty, set_get_user_to_return_valid_users, set_get_token_to_return_token_list,set_strava_get_stream_to_ok_data,set_get_key_to_ok_data
+from .fixtures import enable_httpretty, set_get_user_to_return_valid_users, set_get_token_to_return_token_list,set_strava_get_stream_to_ok_data,set_get_key_to_ok_data, set_get_token_to_return_401_error, set_get_key_to_return_401_error
 from .fixtures import USER_LIST, TOKEN_LIST, STRAVA_KEY_SINGLE
 import runalytics.helpers
 
@@ -35,8 +35,12 @@ class TestGetJustleticToken(object):
     def test_raise_exception_if_user_doesnt_exit(self,enable_httpretty,set_get_token_to_return_token_list,set_get_key_to_ok_data):
         with pytest.raises(StopIteration):
             ret_token = runalytics.helpers.get_justletic_token(999)
-        #assert ret_token == None    
-        
+
+    def test_raise_exception_if_request_fails(self,enable_httpretty,set_get_token_to_return_401_error):
+        with pytest.raises(Exception):
+            ret_token = runalytics.helpers.get_justletic_token(TOKEN_LIST[2].get('user_id'))
+
+
 class TestGetStravaKey(object):
     """Tests for get_strava_key helper method"""
     
@@ -46,6 +50,10 @@ class TestGetStravaKey(object):
         req = httpretty.HTTPretty.latest_requests[-1]
         requested_url = req.headers.get('Host') + req.path
         assert requested_url == f"{SERVER_ADDRESS}/API/key/"
+
+    def test_raise_exception_if_request_fails(self,enable_httpretty,set_get_token_to_return_token_list,set_get_key_to_return_401_error):
+        with pytest.raises(Exception):
+            ret_key = runalytics.helpers.get_strava_key(2)
 
 class TestJustleticUserInit(object):
     """Tests for Init method of user class"""
