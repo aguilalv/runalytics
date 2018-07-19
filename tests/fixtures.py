@@ -33,3 +33,18 @@ def set_get_token_to_return_token_list():
         f"http://{SERVER_ADDRESS}/API/token/",
         body= json.dumps(TOKEN_LIST))
 
+@pytest.fixture
+def set_strava_get_stream_to_ok_data():
+    httpretty.register_uri(
+        httpretty.GET,
+        f'https://www.strava.com/api/v3/activities/1/streams',
+        body= json.dumps(USER_LIST))
+
+@pytest.fixture
+def set_get_key_to_ok():
+    httpretty.register_uri(
+        httpretty.GET,
+        f"http://{SERVER_ADDRESS}/API/key/",
+        body=   '"token": "4b177fb1430b99d30a4966e01f5582f34170e912",'
+                '"strava_id": "21400992"'
+    )
