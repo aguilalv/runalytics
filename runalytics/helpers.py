@@ -23,6 +23,8 @@ def get_strava_key(justletic_token):
 
 class JustleticUser(object):
 
+    activity_ids = []
+
     def __init__(self,user_id):
         self.id = user_id
         try:
@@ -39,5 +41,13 @@ class JustleticUser(object):
             raise Exception() 
         received_data = json.loads(response.text)
         self.activity_ids = []
+# Opportunity to order activities here so ids are ordered
         for activity in received_data:
             self.activity_ids.append(activity.get('id'))
+
+    def activity(self,index):
+        activity_id = self.activity_ids[index]
+        headers = {'Authorization': f'Bearer {self.strava_key}'}
+        payload = {'key_by_type': 'true', 'keys': 'time,distance'}
+        response = requests.get(f"https://www.strava.com/api/v3/activities/{activity_id}/streams", headers=headers, params = payload)
+        return response.text

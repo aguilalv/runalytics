@@ -2,8 +2,9 @@ import os
 import pytest
 import json
 import httpretty
+from unittest.mock import patch, call, Mock, PropertyMock
 
-from .fixtures import enable_httpretty, set_get_user_to_return_valid_users, set_get_token_to_return_token_list,set_get_key_to_ok_data, set_get_token_to_return_401_error, set_get_key_to_return_401_error,set_strava_activities_ok_data, set_strava_activities_to_return_404_error
+from .fixtures import enable_httpretty, set_get_user_to_return_valid_users, set_get_token_to_return_token_list,set_get_key_to_ok_data, set_get_token_to_return_401_error, set_get_key_to_return_401_error,set_strava_activities_ok_data, set_strava_activities_to_return_404_error, set_strava_streams_ok_data
 from .fixtures import USER_LIST, TOKEN_LIST, STRAVA_KEY_SINGLE, STRAVA_ACTIVITIES
 import runalytics.helpers
 
@@ -87,7 +88,37 @@ class TestJustleticUserInit(object):
         with pytest.raises(Exception):
             user = runalytics.helpers.JustleticUser(TOKEN_LIST[2].get('user_id'))
 
-    def test_stores_activity_ids(self,enable_httpretty,set_get_token_to_return_token_list,set_get_key_to_ok_data,set_strava_activities_to_return_404_error):
+    def test_raise_exception_if_activities_request_fails(self,enable_httpretty,set_get_token_to_return_token_list,set_get_key_to_ok_data,set_strava_activities_to_return_404_error):
         with pytest.raises(Exception):
             user = runalytics.helpers.JustleticUser(TOKEN_LIST[2].get('user_id'))
-        
+
+    def test_stores_user_id(self,enable_httpretty,set_get_token_to_return_token_list,set_get_key_to_ok_data,set_strava_activities_ok_data):
+        user = runalytics.helpers.JustleticUser(2)
+        assert user.id == 2
+
+class TestGetActivity(object):
+    """Tests for activity method of user class"""
+
+    def test_stores_activity_ids(self,enable_httpretty,set_get_token_to_return_token_list,set_get_key_to_ok_data,set_strava_activities_ok_data, set_strava_streams_ok_data):
+        user = runalytics.helpers.JustleticUser(TOKEN_LIST[2].get('user_id'))
+        returned_activity = user.activity(-1)
+        req = httpretty.HTTPretty.latest_requests[-1]
+        requested_url = req.headers.get('Host') + req.path
+        assert f"www.strava.com/api/v3/activities/{STRAVA_ACTIVITIES[1].get('id')}/streams" in requested_url
+
+    def test_key_by_type_true_in_query(self,enable_httpretty,set_get_token_to_return_token_list,set_get_key_to_ok_data,set_strava_activities_ok_data, set_strava_streams_ok_data):
+        user = runalytics.helpers.JustleticUser(TOKEN_LIST[2].get('user_id'))
+        returned_activity = user.activity(-1)
+        req = httpretty.HTTPretty.latest_requests[-1]
+        request_payload = req.querystring
+        assert 'key_by_type' in request_payload.keys()
+        assert request_payload.get('key_by_type')[0] == "true"
+    
+    def test_keys_in_query(self,enable_httpretty,set_get_token_to_return_token_list,set_get_key_to_ok_data,set_strava_activities_ok_data, set_strava_streams_ok_data):
+        user = runalytics.helpers.JustleticUser(TOKEN_LIST[2].get('user_id'))
+        returned_activity = user.activity(-1)
+        req = httpretty.HTTPretty.latest_requests[-1]
+        request_payload = req.querystring
+        assert 'keys' in request_payload.keys()
+        assert request_payload.get('keys')[0] == "time,distance"
+

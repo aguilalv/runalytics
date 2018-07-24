@@ -111,3 +111,12 @@ def set_strava_activities_to_return_404_error():
         body = '"xxx": "xxx"',
         status = 404
     )
+
+@pytest.fixture
+def set_strava_streams_ok_data():
+    for act in STRAVA_ACTIVITIES:
+        httpretty.register_uri(
+            httpretty.GET,
+            f'https://www.strava.com/api/v3/activities/{act.get("id")}/streams',
+            body = f'"id": {act.get("id")}',
+        )
