@@ -49,10 +49,14 @@ class JustleticUser(object):
     def activity(self,index):
         activity_id = self.activity_ids[index]
         headers = {'Authorization': f'Bearer {self.strava_key}'}
-        payload = {'key_by_type': 'true', 'keys': 'time,distance'}
+        payload = {
+            'key_by_type': 'true', 
+            'keys': 'time,distance,altitude,heartrate,cadence,latlng,velocity_smooth,watts,temp,moving,grade_smooth'
+        }
         response = requests.get(f"https://www.strava.com/api/v3/activities/{activity_id}/streams", headers=headers, params = payload)
-        aux_dict = json.loads(response.text)
-        time = aux_dict.get('time').get('data')
-        dist = aux_dict.get('distance').get('data') 
-        ret_activity = pd.DataFrame({"time":time,"distance":dist})
+        received_dict = json.loads(response.text)
+        aux_dict = {}
+        for key in received_dict:
+            aux_dict[key] = received_dict.get(key).get('data')
+        ret_activity = pd.DataFrame(aux_dict)
         return ret_activity

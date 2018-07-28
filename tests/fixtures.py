@@ -58,7 +58,61 @@ STRAVA_STREAMS = {
         "series_type":"distance",
         "original_size":16,
         "resolution":"high"
-    }
+    },
+    "altitude":{
+        "data":[10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25],
+        "series_type":"time",
+        "original_size":16,
+        "resolution":"high"
+    },
+    "heartrate":{
+        "data":[100,110,120,130,140,150,160,170,180,190,200,210,220,230,240,250],
+        "series_type":"time",
+        "original_size":16,
+        "resolution":"high"
+    },
+    "cadence":{
+        "data":[155,156,157,158,159,160,161,162,163,164,165,166,167,168,169,170],
+        "series_type":"time",
+        "original_size":16,
+        "resolution":"high"
+    },
+    "latlng":{
+        "data":[[0,0],[1,1],[2,2],[3,3],[4,4],[5,5],[6,6],[7,7],[8,8],[9,9],[10,10],[11,11],[12,12],[13,13],[14,14],[15,15]],
+        "series_type":"time",
+        "original_size":16,
+        "resolution":"high"
+    },
+    "velocity_smooth":{
+        "data":[1.1,2.1,3.1,4.1,5.1,6.1,7.1,8.1,9.1,10.1,11.1,12.1,13.1,14.1,15.1,16.1],
+        "series_type":"time",
+        "original_size":16,
+        "resolution":"high"
+    },
+    "watts":{
+        "data":[10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25],
+        "series_type":"time",
+        "original_size":16,
+        "resolution":"high"
+    },
+    "temp":{
+        "data":[10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25],
+        "series_type":"time",
+        "original_size":16,
+        "resolution":"high"
+    },
+    "moving":{
+        "data":[10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25],
+        "series_type":"time",
+        "original_size":16,
+        "resolution":"high"
+    },
+    "grade_smooth":{
+        "data":[10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25],
+        "series_type":"time",
+        "original_size":16,
+        "resolution":"high"
+    },
 }
 
 @pytest.fixture
@@ -133,6 +187,5 @@ def set_strava_streams_ok_data():
         httpretty.register_uri(
             httpretty.GET,
             f'https://www.strava.com/api/v3/activities/{act.get("id")}/streams',
-        #    body = '{"time":{"data":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15],"series_type":"distance","original_size":16,"resolution":"high"},"distance":{"data":[0.0,0.5,1.6,3.4,5.7,7.9,10.0,12.3,14.4,16.5,18.5,19.7,21.1,22.6,24.5,27.1],"series_type":"distance","original_size":16,"resolution":"high"}}'
             body = json.dumps(STRAVA_STREAMS)
         )

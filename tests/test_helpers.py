@@ -121,7 +121,8 @@ class TestGetActivity(object):
         req = httpretty.HTTPretty.latest_requests[-1]
         request_payload = req.querystring
         assert 'keys' in request_payload.keys()
-        assert request_payload.get('keys')[0] == "time,distance"
+        for key in STRAVA_STREAMS.keys():
+            assert key in request_payload.get('keys')[0]
 
     def test_returns_pandas_dataframe(self,enable_httpretty,set_get_token_to_return_token_list,set_get_key_to_ok_data,set_strava_activities_ok_data, set_strava_streams_ok_data):
         user = runalytics.helpers.JustleticUser(TOKEN_LIST[2].get('user_id'))
