@@ -2,10 +2,11 @@ import os
 import pytest
 import json
 import httpretty
-from unittest.mock import patch, call, Mock, PropertyMock
+#from unittest.mock import patch, call, Mock, PropertyMock
+import pandas as pd
 
 from .fixtures import enable_httpretty, set_get_user_to_return_valid_users, set_get_token_to_return_token_list,set_get_key_to_ok_data, set_get_token_to_return_401_error, set_get_key_to_return_401_error,set_strava_activities_ok_data, set_strava_activities_to_return_404_error, set_strava_streams_ok_data
-from .fixtures import USER_LIST, TOKEN_LIST, STRAVA_KEY_SINGLE, STRAVA_ACTIVITIES
+from .fixtures import USER_LIST, TOKEN_LIST, STRAVA_KEY_SINGLE, STRAVA_ACTIVITIES, STRAVA_STREAMS
 import runalytics.helpers
 
 SERVER_ADDRESS = os.environ.get('JUSTLETIC_SERVER_ADDRESS')
@@ -122,3 +123,27 @@ class TestGetActivity(object):
         assert 'keys' in request_payload.keys()
         assert request_payload.get('keys')[0] == "time,distance"
 
+    def test_returns_pandas_dataframe(self,enable_httpretty,set_get_token_to_return_token_list,set_get_key_to_ok_data,set_strava_activities_ok_data, set_strava_streams_ok_data):
+        user = runalytics.helpers.JustleticUser(TOKEN_LIST[2].get('user_id'))
+        returned_activity = user.activity(-1)
+        assert type(returned_activity) is pd.DataFrame
+
+    def test_returned_dataframe_has_expected_columns(self,enable_httpretty,set_get_token_to_return_token_list,set_get_key_to_ok_data,set_strava_activities_ok_data, set_strava_streams_ok_data):
+        user = runalytics.helpers.JustleticUser(TOKEN_LIST[2].get('user_id'))
+        returned_activity = user.activity(-1)
+        for key in STRAVA_STREAMS.keys():
+            assert key in returned_activity.columns
+
+    def test_returned_dataframe_has_expected_number_of_rows(self,enable_httpretty,set_get_token_to_return_token_list,set_get_key_to_ok_data,set_strava_activities_ok_data, set_strava_streams_ok_data):
+        user = runalytics.helpers.JustleticUser(TOKEN_LIST[2].get('user_id'))
+        returned_activity = user.activity(-1)
+        for key in STRAVA_STREAMS.keys():
+            assert returned_activity.shape[0] == len(STRAVA_STREAMS[key]['data'])
+    
+    def test_returned_dataframe_has_expected_data(self,enable_httpretty,set_get_token_to_return_token_list,set_get_key_to_ok_data,set_strava_activities_ok_data, set_strava_streams_ok_data):
+        user = runalytics.helpers.JustleticUser(TOKEN_LIST[2].get('user_id'))
+        returned_activity = user.activity(-1)
+        for key in STRAVA_STREAMS.keys():
+            l1 = returned_activity[key].values.tolist()
+            l2 = STRAVA_STREAMS[key]['data']
+            assert l1 == l2

@@ -46,6 +46,21 @@ STRAVA_ACTIVITIES = [
     },
 ]
 
+STRAVA_STREAMS = {
+    "time":{
+        "data":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15],
+        "series_type":"distance",
+        "original_size":16,
+        "resolution":"high"
+    },
+    "distance":{
+        "data":[0.0,0.5,1.6,3.4,5.7,7.9,10.0,12.3,14.4,16.5,18.5,19.7,21.1,22.6,24.5,27.1],
+        "series_type":"distance",
+        "original_size":16,
+        "resolution":"high"
+    }
+}
+
 @pytest.fixture
 def enable_httpretty():
     httpretty.enable()
@@ -118,5 +133,6 @@ def set_strava_streams_ok_data():
         httpretty.register_uri(
             httpretty.GET,
             f'https://www.strava.com/api/v3/activities/{act.get("id")}/streams',
-            body = f'"id": {act.get("id")}',
+        #    body = '{"time":{"data":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15],"series_type":"distance","original_size":16,"resolution":"high"},"distance":{"data":[0.0,0.5,1.6,3.4,5.7,7.9,10.0,12.3,14.4,16.5,18.5,19.7,21.1,22.6,24.5,27.1],"series_type":"distance","original_size":16,"resolution":"high"}}'
+            body = json.dumps(STRAVA_STREAMS)
         )

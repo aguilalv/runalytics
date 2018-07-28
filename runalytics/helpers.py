@@ -1,6 +1,7 @@
 import os
 import requests
 import json
+import pandas as pd
 
 SERVER_ADDRESS = os.environ.get("JUSTLETIC_SERVER_ADDRESS")
 ADMIN_TOKEN = os.environ.get("JUSTLETIC_ADMIN_TOKEN")
@@ -50,4 +51,8 @@ class JustleticUser(object):
         headers = {'Authorization': f'Bearer {self.strava_key}'}
         payload = {'key_by_type': 'true', 'keys': 'time,distance'}
         response = requests.get(f"https://www.strava.com/api/v3/activities/{activity_id}/streams", headers=headers, params = payload)
-        return response.text
+        aux_dict = json.loads(response.text)
+        time = aux_dict.get('time').get('data')
+        dist = aux_dict.get('distance').get('data') 
+        ret_activity = pd.DataFrame({"time":time,"distance":dist})
+        return ret_activity
