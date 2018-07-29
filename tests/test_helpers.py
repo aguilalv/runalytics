@@ -72,10 +72,16 @@ class TestJustleticUserInit(object):
         user = runalytics.helpers.JustleticUser(TOKEN_LIST[2].get('user_id'))
         assert user.strava_key == STRAVA_KEY_SINGLE.get('token')
 
-    def test_stores_activity_ids(self,enable_httpretty,set_get_token_to_return_token_list,set_get_key_to_ok_data,set_strava_activities_ok_data):
+#    def test_stores_activity_ids(self,enable_httpretty,set_get_token_to_return_token_list,set_get_key_to_ok_data,set_strava_activities_ok_data):
+#        user = runalytics.helpers.JustleticUser(TOKEN_LIST[2].get('user_id'))
+#        assert STRAVA_ACTIVITIES[0].get('id') in user.activity_ids
+#        assert STRAVA_ACTIVITIES[1].get('id') in user.activity_ids
+
+    def test_stores_activity_ids_and_dates_as_tuples(self,enable_httpretty,set_get_token_to_return_token_list,set_get_key_to_ok_data,set_strava_activities_ok_data):
         user = runalytics.helpers.JustleticUser(TOKEN_LIST[2].get('user_id'))
-        assert STRAVA_ACTIVITIES[0].get('id') in user.activity_ids
-        assert STRAVA_ACTIVITIES[1].get('id') in user.activity_ids
+        assert (STRAVA_ACTIVITIES[0].get('start_date'),STRAVA_ACTIVITIES[0].get('id')) in user.activity_ids
+        assert (STRAVA_ACTIVITIES[1].get('start_date'),STRAVA_ACTIVITIES[1].get('id')) in user.activity_ids
+
 
     def test_raises_exception_if_user_does_not_exist(self,enable_httpretty,set_get_token_to_return_token_list,set_get_key_to_ok_data):
         with pytest.raises(IndexError):
@@ -100,7 +106,7 @@ class TestJustleticUserInit(object):
 class TestGetActivity(object):
     """Tests for activity method of user class"""
 
-    def test_stores_activity_ids(self,enable_httpretty,set_get_token_to_return_token_list,set_get_key_to_ok_data,set_strava_activities_ok_data, set_strava_streams_ok_data):
+    def test_sends_get_request_to_strava(self,enable_httpretty,set_get_token_to_return_token_list,set_get_key_to_ok_data,set_strava_activities_ok_data, set_strava_streams_ok_data):
         user = runalytics.helpers.JustleticUser(TOKEN_LIST[2].get('user_id'))
         returned_activity = user.activity(-1)
         req = httpretty.HTTPretty.latest_requests[-1]

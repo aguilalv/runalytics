@@ -33,9 +33,9 @@ class JustleticUser(object):
         except StopIteration:
             raise IndexError()
         self.strava_key = get_strava_key(self.justletic_token)
-        self.update_activity_ids()
+        self._update_activity_ids()
          
-    def update_activity_ids(self):
+    def _update_activity_ids(self):
         headers = {'Authorization': f'Bearer {self.strava_key}'}
         response = requests.get(f"https://www.strava.com/api/v3/activities/", headers=headers)
         if response.status_code != 200:
@@ -44,10 +44,10 @@ class JustleticUser(object):
         self.activity_ids = []
 # Opportunity to order activities here so ids are ordered
         for activity in received_data:
-            self.activity_ids.append(activity.get('id'))
+            self.activity_ids.append((activity.get('start_date'),activity.get('id')))
 
     def activity(self,index):
-        activity_id = self.activity_ids[index]
+        start_date,activity_id = self.activity_ids[index]
         headers = {'Authorization': f'Bearer {self.strava_key}'}
         payload = {
             'key_by_type': 'true', 
