@@ -24,7 +24,7 @@ def get_strava_key(justletic_token):
 
 class JustleticUser(object):
 
-    activity_ids = []
+    activities = []
 
     def __init__(self,user_id):
         self.id = user_id
@@ -33,19 +33,19 @@ class JustleticUser(object):
         except StopIteration:
             raise IndexError()
         self.strava_key = get_strava_key(self.justletic_token)
-        self._update_activity_ids()
+        self._update_activities()
          
-    def _update_activity_ids(self):
+    def _update_activities(self):
         headers = {'Authorization': f'Bearer {self.strava_key}'}
         response = requests.get(f"https://www.strava.com/api/v3/activities/", headers=headers)
         if response.status_code != 200:
             raise Exception() 
         received_data = json.loads(response.text)
         aux_df = pd.DataFrame(received_data)
-        self.activity_ids = aux_df[['id','start_date']]
+        self.activities = aux_df[['id','start_date']]
 
     def activity(self,index):
-        activity_id = self.activity_ids.iloc[index]['id']        
+        activity_id = self.activities.iloc[index]['id']        
         headers = {'Authorization': f'Bearer {self.strava_key}'}
         payload = {
             'key_by_type': 'true', 
