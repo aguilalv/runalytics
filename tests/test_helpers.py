@@ -80,16 +80,15 @@ class TestJustleticUserInit(object):
         user = runalytics.helpers.JustleticUser(TOKEN_LIST[2].get('user_id'))
         assert user.strava_key == STRAVA_KEY_SINGLE.get('token')
 
-#    def test_stores_activity_ids(self,enable_httpretty,set_get_token_to_return_token_list,set_get_key_to_ok_data,set_strava_activities_ok_data):
-#        user = runalytics.helpers.JustleticUser(TOKEN_LIST[2].get('user_id'))
-#        assert STRAVA_ACTIVITIES[0].get('id') in user.activity_ids
-#        assert STRAVA_ACTIVITIES[1].get('id') in user.activity_ids
-
-    def test_stores_activity_ids_and_dates_as_tuples(self,enable_httpretty,set_get_token_to_return_token_list,set_get_key_to_ok_data,set_strava_activities_ok_data):
+    def test_stores_activity_ids_as_dataframe(self,enable_httpretty,set_get_token_to_return_token_list,set_get_key_to_ok_data,set_strava_activities_ok_data):
         user = runalytics.helpers.JustleticUser(TOKEN_LIST[2].get('user_id'))
-        assert (STRAVA_ACTIVITIES[0].get('start_date'),STRAVA_ACTIVITIES[0].get('id')) in user.activity_ids
-        assert (STRAVA_ACTIVITIES[1].get('start_date'),STRAVA_ACTIVITIES[1].get('id')) in user.activity_ids
-
+        assert type(user.activity_ids) == pd.DataFrame 
+ 
+    def test_stores_activity_ids_dataframe_stores_id_and_date(self,enable_httpretty,set_get_token_to_return_token_list,set_get_key_to_ok_data,set_strava_activities_ok_data):
+        user = runalytics.helpers.JustleticUser(TOKEN_LIST[2].get('user_id'))
+        assert user.activity_ids.shape == (len(STRAVA_ACTIVITIES),2)
+        assert user.activity_ids['id'].values.tolist() == [x.get('id') for x in STRAVA_ACTIVITIES]
+        assert user.activity_ids['start_date'].values.tolist() == [x.get('start_date') for x in STRAVA_ACTIVITIES]
 
     def test_raises_exception_if_user_does_not_exist(self,enable_httpretty,set_get_token_to_return_token_list,set_get_key_to_ok_data):
         with pytest.raises(IndexError):

@@ -41,14 +41,11 @@ class JustleticUser(object):
         if response.status_code != 200:
             raise Exception() 
         received_data = json.loads(response.text)
-        self.activity_ids = []
-# Opportunity to order activities here so ids are ordered
-        for activity in received_data:
-            self.activity_ids.append((activity.get('start_date'),activity.get('id')))
-#        self.activity_ids = pd.DataFrame(received_data)
+        aux_df = pd.DataFrame(received_data)
+        self.activity_ids = aux_df[['id','start_date']]
 
     def activity(self,index):
-        start_date,activity_id = self.activity_ids[index]
+        activity_id = self.activity_ids.iloc[index]['id']        
         headers = {'Authorization': f'Bearer {self.strava_key}'}
         payload = {
             'key_by_type': 'true', 
