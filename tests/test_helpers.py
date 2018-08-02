@@ -53,6 +53,13 @@ class TestGetStravaKey(object):
         requested_url = req.headers.get('Host') + req.path
         assert requested_url == f"{SERVER_ADDRESS}/API/key/"
 
+    def test_includes_user_token_in_request_header(
+        self,enable_httpretty,set_get_key_to_ok_data):
+        ret_key = runalytics.helpers.get_strava_key("2")
+        req = httpretty.HTTPretty.latest_requests[-1]
+        auth_header_sent = req.headers.get('Authorization')
+        assert auth_header_sent == "Token 2"
+    
     def test_raise_exception_if_request_fails(self,enable_httpretty,set_get_token_to_return_token_list,set_get_key_to_return_401_error):
         with pytest.raises(Exception):
             ret_key = runalytics.helpers.get_strava_key(2)
