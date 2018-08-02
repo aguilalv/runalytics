@@ -4,6 +4,7 @@ import json
 import httpretty
 #from unittest.mock import patch, call, Mock, PropertyMock
 import pandas as pd
+import numpy as np
 
 from .fixtures import enable_httpretty, set_get_user_to_return_valid_users, set_get_token_to_return_token_list,set_get_key_to_ok_data, set_get_token_to_return_401_error, set_get_key_to_return_401_error,set_strava_activities_ok_data, set_strava_activities_to_return_404_error, set_strava_streams_ok_data
 from .fixtures import USER_LIST, TOKEN_LIST, STRAVA_KEY_SINGLE, STRAVA_ACTIVITIES, STRAVA_STREAMS
@@ -154,10 +155,18 @@ class TestGetActivity(object):
         for key in STRAVA_STREAMS.keys():
             assert returned_activity.shape[0] == len(STRAVA_STREAMS[key]['data'])
     
-    def test_returned_dataframe_has_expected_data(self,enable_httpretty,set_get_token_to_return_token_list,set_get_key_to_ok_data,set_strava_activities_ok_data, set_strava_streams_ok_data):
+    def test_returned_dataframe_includes_all_strava_data(self,enable_httpretty,set_get_token_to_return_token_list,set_get_key_to_ok_data,set_strava_activities_ok_data, set_strava_streams_ok_data):
         user = runalytics.helpers.JustleticUser(TOKEN_LIST[2].get('user_id'))
         returned_activity = user.activity(-1)
         for key in STRAVA_STREAMS.keys():
             l1 = returned_activity[key].values.tolist()
             l2 = STRAVA_STREAMS[key]['data']
             assert l1 == l2
+    
+    def test_returned_dataframe_includes_activity_id(self,enable_httpretty,set_get_token_to_return_token_list,set_get_key_to_ok_data,set_strava_activities_ok_data, set_strava_streams_ok_data):
+        user = runalytics.helpers.JustleticUser(TOKEN_LIST[2].get('user_id'))
+        returned_activity = user.activity(-1)
+        expected_series = pd.Series(
+            np.repeat(STRAVA_ACTIVITIES[-1].get('id'),len(STRAVA_STREAMS['time']['data']))
+        )
+        assert returned_activity['id'].values.tolist() == expected_series.values.tolist()

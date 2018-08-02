@@ -45,6 +45,7 @@ class JustleticUser(object):
 # Opportunity to order activities here so ids are ordered
         for activity in received_data:
             self.activity_ids.append((activity.get('start_date'),activity.get('id')))
+#        self.activity_ids = pd.DataFrame(received_data)
 
     def activity(self,index):
         start_date,activity_id = self.activity_ids[index]
@@ -55,7 +56,7 @@ class JustleticUser(object):
         }
         response = requests.get(f"https://www.strava.com/api/v3/activities/{activity_id}/streams", headers=headers, params = payload)
         received_dict = json.loads(response.text)
-        aux_dict = {}
+        aux_dict = {'id':activity_id}
         for key in received_dict:
             aux_dict[key] = received_dict.get(key).get('data')
         ret_activity = pd.DataFrame(aux_dict)
