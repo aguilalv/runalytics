@@ -80,15 +80,22 @@ class TestJustleticUserInit(object):
         user = runalytics.helpers.JustleticUser(TOKEN_LIST[2].get('user_id'))
         assert user.strava_key == STRAVA_KEY_SINGLE.get('token')
 
-    def test_stores_activities__as_dataframe(self,enable_httpretty,set_get_token_to_return_token_list,set_get_key_to_ok_data,set_strava_activities_ok_data):
+    def test_stores_activities_as_dataframe(self,enable_httpretty,set_get_token_to_return_token_list,set_get_key_to_ok_data,set_strava_activities_ok_data):
         user = runalytics.helpers.JustleticUser(TOKEN_LIST[2].get('user_id'))
         assert type(user.activities) == pd.DataFrame 
  
-    def test_stores_activities_dataframe_stores_id_and_date(self,enable_httpretty,set_get_token_to_return_token_list,set_get_key_to_ok_data,set_strava_activities_ok_data):
+    def test_stores_activities_start_date(self,enable_httpretty,set_get_token_to_return_token_list,set_get_key_to_ok_data,set_strava_activities_ok_data):
         user = runalytics.helpers.JustleticUser(TOKEN_LIST[2].get('user_id'))
-        assert user.activities.shape == (len(STRAVA_ACTIVITIES),2)
-        assert user.activities['id'].values.tolist() == [x.get('id') for x in STRAVA_ACTIVITIES]
+        assert user.activities.shape == (len(STRAVA_ACTIVITIES),1)
         assert user.activities['start_date'].values.tolist() == [x.get('start_date') for x in STRAVA_ACTIVITIES]
+
+    def test_activities_dataframe_has_id_as_index(self,enable_httpretty,set_get_token_to_return_token_list,set_get_key_to_ok_data,set_strava_activities_ok_data):
+        user = runalytics.helpers.JustleticUser(TOKEN_LIST[2].get('user_id'))
+        assert user.activities.index.tolist() == [x.get('id') for x in STRAVA_ACTIVITIES]
+
+    def test_stores_activities_dataframe_ordered_by_start_date(self,enable_httpretty,set_get_token_to_return_token_list,set_get_key_to_ok_data,set_strava_activities_ok_data):
+        user = runalytics.helpers.JustleticUser(TOKEN_LIST[2].get('user_id'))
+        assert user.activities['start_date'].is_monotonic_decreasing
 
     def test_raises_exception_if_user_does_not_exist(self,enable_httpretty,set_get_token_to_return_token_list,set_get_key_to_ok_data):
         with pytest.raises(IndexError):

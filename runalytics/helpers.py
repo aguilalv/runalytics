@@ -42,10 +42,10 @@ class JustleticUser(object):
             raise Exception() 
         received_data = json.loads(response.text)
         aux_df = pd.DataFrame(received_data)
-        self.activities = aux_df[['id','start_date']]
+        self.activities = aux_df[['id','start_date']].set_index('id').sort_values(by='start_date',ascending=False)
 
     def activity(self,index):
-        activity_id = self.activities.iloc[index]['id']        
+        activity_id = self.activities.index[index]        
         headers = {'Authorization': f'Bearer {self.strava_key}'}
         payload = {
             'key_by_type': 'true', 
