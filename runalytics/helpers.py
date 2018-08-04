@@ -54,7 +54,12 @@ class JustleticUser(object):
         response = requests.get(f"https://www.strava.com/api/v3/activities/{activity_id}/streams", headers=headers, params = payload)
         received_dict = json.loads(response.text)
         aux_dict = {'id':activity_id}
+
+
         for key in received_dict:
             aux_dict[key] = received_dict.get(key).get('data')
         ret_activity = pd.DataFrame(aux_dict)
+        ret_activity['lat'] = ret_activity['latlng'].str[0]
+        ret_activity['long'] = ret_activity['latlng'].str[1]
+        ret_activity = ret_activity.drop(columns=['latlng'])
         return ret_activity

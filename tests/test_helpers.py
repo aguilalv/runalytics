@@ -153,7 +153,10 @@ class TestGetActivity(object):
         user = runalytics.helpers.JustleticUser(TOKEN_LIST[2].get('user_id'))
         returned_activity = user.activity(-1)
         for key in STRAVA_STREAMS.keys():
-            assert key in returned_activity.columns
+            if key != 'latlng':
+                assert key in returned_activity.columns
+        assert 'lat' in returned_activity.columns
+        assert 'long' in returned_activity.columns
 
     def test_returned_dataframe_has_expected_number_of_rows(self,enable_httpretty,set_get_token_to_return_token_list,set_get_key_to_ok_data,set_strava_activities_ok_data, set_strava_streams_ok_data):
         user = runalytics.helpers.JustleticUser(TOKEN_LIST[2].get('user_id'))
@@ -161,18 +164,37 @@ class TestGetActivity(object):
         for key in STRAVA_STREAMS.keys():
             assert returned_activity.shape[0] == len(STRAVA_STREAMS[key]['data'])
     
-    def test_returned_dataframe_includes_all_strava_data(self,enable_httpretty,set_get_token_to_return_token_list,set_get_key_to_ok_data,set_strava_activities_ok_data, set_strava_streams_ok_data):
-        user = runalytics.helpers.JustleticUser(TOKEN_LIST[2].get('user_id'))
-        returned_activity = user.activity(-1)
-        for key in STRAVA_STREAMS.keys():
-            l1 = returned_activity[key].values.tolist()
-            l2 = STRAVA_STREAMS[key]['data']
-            assert l1 == l2
-    
     def test_returned_dataframe_includes_activity_id(self,enable_httpretty,set_get_token_to_return_token_list,set_get_key_to_ok_data,set_strava_activities_ok_data, set_strava_streams_ok_data):
         user = runalytics.helpers.JustleticUser(TOKEN_LIST[2].get('user_id'))
         returned_activity = user.activity(-1)
         expected_series = pd.Series(
             np.repeat(STRAVA_ACTIVITIES[-1].get('id'),len(STRAVA_STREAMS['time']['data']))
         )
-        assert returned_activity['id'].values.tolist() == expected_series.values.tolist()
+        assert returned_activity['id'].values.tolist() == expected_series.values.tolist() 
+    
+    def test_returned_dataframe_includes_all_strava_data_except_latlng(self,enable_httpretty,set_get_token_to_return_token_list,set_get_key_to_ok_data,set_strava_activities_ok_data, set_strava_streams_ok_data):
+        user = runalytics.helpers.JustleticUser(TOKEN_LIST[2].get('user_id'))
+        returned_activity = user.activity(-1)
+        for key in STRAVA_STREAMS.keys():
+            if key != 'latlng':
+                returned_values = returned_activity[key].values.tolist()
+                expected_values = STRAVA_STREAMS[key]['data']
+                assert returned_values == expected_values
+
+    def test_returned_dataframe_includes_lat_and_long_series(self,enable_httpretty,set_get_token_to_return_token_list,set_get_key_to_ok_data,set_strava_activities_ok_data, set_strava_streams_ok_data):
+        user = runalytics.helpers.JustleticUser(TOKEN_LIST[2].get('user_id'))
+        returned_activity = user.activity(-1)
+        
+        returned_lat = returned_activity['lat'].values.tolist()
+        returned_long = returned_activity['long'].values.tolist()
+        expected_lat = [x[0] for x in STRAVA_STREAMS['latlng']['data']]
+        expected_long = [x[1] for x in STRAVA_STREAMS['latlng']['data']]
+
+        assert returned_lat == expected_lat
+        assert returned_long == expected_long
+
+    def test_returned_dataframe_doesnt_include_latlng_series(self,enable_httpretty,set_get_token_to_return_token_list,set_get_key_to_ok_data,set_strava_activities_ok_data, set_strava_streams_ok_data):
+        user = runalytics.helpers.JustleticUser(TOKEN_LIST[2].get('user_id'))
+        returned_activity = user.activity(-1)
+        assert 'latlng' not in returned_activity.columns
+
