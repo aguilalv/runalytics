@@ -27,6 +27,14 @@ KEYS_LIST = [
         "service": "SPO",
     },
 ]
+KEYS_SPO_ONLY = [
+    {
+        "token": "BQDWX3kOs-CZz4BUqssV65aiJ36P7ZjbKa3cb86Q1SDuZG0BWGFvVWL2vJl1lKv54kqAdvBDNWjQ7xEGqVMbGH2E_B_y6iSczqe2FWWaoUE4Ebj3fefREMwH_Bd0aMkmJvV5RhbpFSDq4AXyV0-R_Ks69hxDcZsy",
+        "refresh_token": "AQCf7Jg1ddgJ9ufplrx51D5cw7di69EmQQx9eo3dSCObPa9hOToHIqDVoOw675gj9Oo9BudIJtE7-iRmFGO8EiWxmoDZOFdtkEERXCVbVzCvwI25Dz1N2RuYqz28LPzOanQ",
+        "strava_id": "",
+        "service": "SPO",
+    },
+]
 
 STRAVA_ACTIVITIES = [
     {"id" : 123456778928065,
@@ -164,6 +172,14 @@ def set_get_key_to_ok_data():
         httpretty.GET,
         f"http://{SERVER_ADDRESS}/API/key/",
         body = json.dumps(KEYS_LIST)
+    )
+
+@pytest.fixture
+def set_get_key_to_spotify_only():
+    httpretty.register_uri(
+        httpretty.GET,
+        f"http://{SERVER_ADDRESS}/API/key/",
+        body = json.dumps(KEYS_SPO_ONLY)
     )
 
 @pytest.fixture

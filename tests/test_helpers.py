@@ -6,8 +6,8 @@ import httpretty
 import pandas as pd
 import numpy as np
 
-from .fixtures import enable_httpretty, set_get_user_to_return_valid_users, set_get_token_to_return_token_list,set_get_key_to_ok_data, set_get_token_to_return_401_error, set_get_key_to_return_401_error,set_strava_activities_ok_data, set_strava_activities_to_return_404_error, set_strava_streams_ok_data
-from .fixtures import USER_LIST, TOKEN_LIST, KEYS_LIST, STRAVA_ACTIVITIES, STRAVA_STREAMS
+from .fixtures import enable_httpretty, set_get_user_to_return_valid_users, set_get_token_to_return_token_list,set_get_key_to_ok_data, set_get_key_to_spotify_only, set_get_token_to_return_401_error, set_get_key_to_return_401_error,set_strava_activities_ok_data, set_strava_activities_to_return_404_error, set_strava_streams_ok_data
+from .fixtures import USER_LIST, TOKEN_LIST, KEYS_LIST, KEYS_SPO_ONLY, STRAVA_ACTIVITIES, STRAVA_STREAMS
 import runalytics.helpers
 
 SERVER_ADDRESS = os.environ.get('JUSTLETIC_SERVER_ADDRESS')
@@ -60,7 +60,19 @@ class TestGetStravaKey(object):
         req = httpretty.HTTPretty.latest_requests[-1]
         auth_header_sent = req.headers.get('Authorization')
         assert auth_header_sent == "Token 2"
-    
+
+    def test_returns_key_for_strava_service(
+        self,enable_httpretty,set_get_key_to_ok_data):
+        ret_key = runalytics.helpers.get_strava_key("2")
+        assert ret_key == KEYS_LIST[0].get("token")
+            
+    def test_raise_exception_if_key_for_other_services_but_not_strava(
+        self,enable_httpretty,set_get_key_to_spotify_only):
+        with pytest.raises(Exception):
+            ret_key = runalytics.helpers.get_strava_key(2)
+
+# def test_ --- any other cases?
+
     def test_raise_exception_if_request_fails(self,enable_httpretty,set_get_token_to_return_token_list,set_get_key_to_return_401_error):
         with pytest.raises(Exception):
             ret_key = runalytics.helpers.get_strava_key(2)

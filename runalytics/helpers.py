@@ -20,8 +20,7 @@ def get_strava_key(justletic_token):
     if response.status_code != 200:
         raise Exception()
     received_data = json.loads(response.text)
-# Need to change so it looks for the Strava key
-    return received_data[0].get('token')
+    return next(x.get('token') for x in received_data if x.get('service') == 'STR')
 
 class JustleticUser(object):
 
