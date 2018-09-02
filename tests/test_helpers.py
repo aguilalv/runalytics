@@ -7,7 +7,7 @@ import pandas as pd
 import numpy as np
 
 from .fixtures import enable_httpretty, set_get_user_to_return_valid_users, set_get_token_to_return_token_list,set_get_key_to_ok_data, set_get_token_to_return_401_error, set_get_key_to_return_401_error,set_strava_activities_ok_data, set_strava_activities_to_return_404_error, set_strava_streams_ok_data
-from .fixtures import USER_LIST, TOKEN_LIST, STRAVA_KEY_SINGLE, STRAVA_ACTIVITIES, STRAVA_STREAMS
+from .fixtures import USER_LIST, TOKEN_LIST, KEYS_LIST, STRAVA_ACTIVITIES, STRAVA_STREAMS
 import runalytics.helpers
 
 SERVER_ADDRESS = os.environ.get('JUSTLETIC_SERVER_ADDRESS')
@@ -78,7 +78,7 @@ class TestJustleticUserInit(object):
 
     def test_stores_strava_key(self,enable_httpretty,set_get_token_to_return_token_list,set_get_key_to_ok_data,set_strava_activities_ok_data):
         user = runalytics.helpers.JustleticUser(TOKEN_LIST['tokens'][2].get('user_id'))
-        assert user.strava_key == STRAVA_KEY_SINGLE[0].get('token')
+        assert user.strava_key == KEYS_LIST[0].get('token')
 
     def test_stores_activities_as_dataframe(self,enable_httpretty,set_get_token_to_return_token_list,set_get_key_to_ok_data,set_strava_activities_ok_data):
         user = runalytics.helpers.JustleticUser(TOKEN_LIST['tokens'][2].get('user_id'))

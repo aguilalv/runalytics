@@ -13,7 +13,7 @@ TOKEN_LIST = {"tokens":[
     {"user_id": 1,"key": "173ce3ae65b1afbd5df6d16e564a085755d2f9d2"},
     {"user_id": 2,"key": "52ad621f36ca868405b3c3afece8da650dca34d5"},
     {"user_id": 3,"key": "5935e11788b40f18f95cc7c70ddb876a3ff3bf41"}]}
-STRAVA_KEY_SINGLE = [
+KEYS_LIST = [
     {
         "token": "4b177fb1430b99d30a4966e01f5582f34170e912",
         "refresh_token": "",
@@ -27,8 +27,6 @@ STRAVA_KEY_SINGLE = [
         "service": "SPO",
     },
 ]
-
-
 
 STRAVA_ACTIVITIES = [
     {"id" : 123456778928065,
@@ -165,7 +163,7 @@ def set_get_key_to_ok_data():
     httpretty.register_uri(
         httpretty.GET,
         f"http://{SERVER_ADDRESS}/API/key/",
-        body = json.dumps(STRAVA_KEY_SINGLE)
+        body = json.dumps(KEYS_LIST)
     )
 
 @pytest.fixture
