@@ -5,15 +5,30 @@ import json
 
 SERVER_ADDRESS = os.environ.get('JUSTLETIC_SERVER_ADDRESS')
 
-USER_LIST = [{"id": 1,"username": "edith@mailinator.com"},
+USER_LIST = {"users":[  
+    {"id": 1,"username": "edith@mailinator.com"},
     {"id": 2,"username": "joe@mailinator.com"},
-    {"id": 3,"username": "admin"}]
-TOKEN_LIST = [{"user_id": 1,"key": "173ce3ae65b1afbd5df6d16e564a085755d2f9d2"},
+    {"id": 3,"username": "admin"}]}
+TOKEN_LIST = {"tokens":[
+    {"user_id": 1,"key": "173ce3ae65b1afbd5df6d16e564a085755d2f9d2"},
     {"user_id": 2,"key": "52ad621f36ca868405b3c3afece8da650dca34d5"},
-    {"user_id": 3,"key": "5935e11788b40f18f95cc7c70ddb876a3ff3bf41"}]
-STRAVA_KEY_SINGLE = {
-    "token": "4b177fb1430b99d30a4966e01f5582f34170e912",
-    "strava_id": "21400992"}
+    {"user_id": 3,"key": "5935e11788b40f18f95cc7c70ddb876a3ff3bf41"}]}
+STRAVA_KEY_SINGLE = [
+    {
+        "token": "4b177fb1430b99d30a4966e01f5582f34170e912",
+        "refresh_token": "",
+        "strava_id": "21400992",
+        "service": "STR",
+    },
+    {
+        "token": "BQDWX3kOs-CZz4BUqssV65aiJ36P7ZjbKa3cb86Q1SDuZG0BWGFvVWL2vJl1lKv54kqAdvBDNWjQ7xEGqVMbGH2E_B_y6iSczqe2FWWaoUE4Ebj3fefREMwH_Bd0aMkmJvV5RhbpFSDq4AXyV0-R_Ks69hxDcZsy",
+        "refresh_token": "AQCf7Jg1ddgJ9ufplrx51D5cw7di69EmQQx9eo3dSCObPa9hOToHIqDVoOw675gj9Oo9BudIJtE7-iRmFGO8EiWxmoDZOFdtkEERXCVbVzCvwI25Dz1N2RuYqz28LPzOanQ",
+        "strava_id": "",
+        "service": "SPO",
+    },
+]
+
+
 
 STRAVA_ACTIVITIES = [
     {"id" : 123456778928065,
@@ -144,8 +159,6 @@ def set_get_token_to_return_401_error():
         body = '"detail": "Authentication credentials were not provided."',
         status = 401
     )
-
-            
 
 @pytest.fixture
 def set_get_key_to_ok_data():

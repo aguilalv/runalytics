@@ -11,7 +11,7 @@ def get_justletic_token(user_id):
     response = requests.get(f"http://{SERVER_ADDRESS}/API/token/", headers=headers)
     if response.status_code != 200:
         raise Exception()
-    token_list = json.loads(response.text)
+    token_list = json.loads(response.text).get("tokens")
     return next(x.get('key') for x in token_list if x.get('user_id') == user_id)
 
 def get_strava_key(justletic_token):
@@ -20,7 +20,8 @@ def get_strava_key(justletic_token):
     if response.status_code != 200:
         raise Exception()
     received_data = json.loads(response.text)
-    return received_data.get('token')
+# Need to change so it looks for the Strava key
+    return received_data[0].get('token')
 
 class JustleticUser(object):
 

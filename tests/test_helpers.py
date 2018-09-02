@@ -18,22 +18,22 @@ class TestGetJustleticToken(object):
 
     def test_sends_get_request_to_token_api_endpoint(
         self,enable_httpretty,set_get_token_to_return_token_list):
-        ret_token = runalytics.helpers.get_justletic_token(TOKEN_LIST[2].get('user_id'))
+        ret_token = runalytics.helpers.get_justletic_token(TOKEN_LIST['tokens'][2].get('user_id'))
         req = httpretty.HTTPretty.latest_requests[-1]
         requested_url = req.headers.get('Host') + req.path
         assert requested_url == f"{SERVER_ADDRESS}/API/token/"
 
     def test_includes_admin_token_in_request_header(
         self,enable_httpretty,set_get_token_to_return_token_list):
-        ret_token = runalytics.helpers.get_justletic_token(TOKEN_LIST[2].get('user_id'))
+        ret_token = runalytics.helpers.get_justletic_token(TOKEN_LIST['tokens'][2].get('user_id'))
         req = httpretty.HTTPretty.latest_requests[-1]
         auth_header_sent = req.headers.get('Authorization')
         assert auth_header_sent == f"Token {ADMIN_TOKEN}"
 
     def test_returns_justletic_token_for_requested_user(
         self,enable_httpretty,set_get_token_to_return_token_list):
-        ret_token = runalytics.helpers.get_justletic_token(TOKEN_LIST[2].get('user_id'))
-        assert ret_token == TOKEN_LIST[2].get('key')
+        ret_token = runalytics.helpers.get_justletic_token(TOKEN_LIST['tokens'][2].get('user_id'))
+        assert ret_token == TOKEN_LIST['tokens'][2].get('key')
 
     def test_raise_exception_if_user_doesnt_exit(self,enable_httpretty,set_get_token_to_return_token_list,set_get_key_to_ok_data):
         with pytest.raises(StopIteration):
@@ -41,7 +41,7 @@ class TestGetJustleticToken(object):
 
     def test_raise_exception_if_request_fails(self,enable_httpretty,set_get_token_to_return_401_error):
         with pytest.raises(Exception):
-            ret_token = runalytics.helpers.get_justletic_token(TOKEN_LIST[2].get('user_id'))
+            ret_token = runalytics.helpers.get_justletic_token(TOKEN_LIST['tokens'][2].get('user_id'))
 
 
 class TestGetStravaKey(object):
@@ -73,28 +73,28 @@ class TestJustleticUserInit(object):
         assert user.id == 2
 
     def test_stores_user_token(self,enable_httpretty,set_get_token_to_return_token_list,set_get_key_to_ok_data,set_strava_activities_ok_data):
-        user = runalytics.helpers.JustleticUser(TOKEN_LIST[2].get('user_id'))
-        assert user.justletic_token == TOKEN_LIST[2].get('key') 
+        user = runalytics.helpers.JustleticUser(TOKEN_LIST['tokens'][2].get('user_id'))
+        assert user.justletic_token == TOKEN_LIST['tokens'][2].get('key') 
 
     def test_stores_strava_key(self,enable_httpretty,set_get_token_to_return_token_list,set_get_key_to_ok_data,set_strava_activities_ok_data):
-        user = runalytics.helpers.JustleticUser(TOKEN_LIST[2].get('user_id'))
-        assert user.strava_key == STRAVA_KEY_SINGLE.get('token')
+        user = runalytics.helpers.JustleticUser(TOKEN_LIST['tokens'][2].get('user_id'))
+        assert user.strava_key == STRAVA_KEY_SINGLE[0].get('token')
 
     def test_stores_activities_as_dataframe(self,enable_httpretty,set_get_token_to_return_token_list,set_get_key_to_ok_data,set_strava_activities_ok_data):
-        user = runalytics.helpers.JustleticUser(TOKEN_LIST[2].get('user_id'))
+        user = runalytics.helpers.JustleticUser(TOKEN_LIST['tokens'][2].get('user_id'))
         assert type(user.activities) == pd.DataFrame 
  
     def test_stores_activities_start_date(self,enable_httpretty,set_get_token_to_return_token_list,set_get_key_to_ok_data,set_strava_activities_ok_data):
-        user = runalytics.helpers.JustleticUser(TOKEN_LIST[2].get('user_id'))
+        user = runalytics.helpers.JustleticUser(TOKEN_LIST['tokens'][2].get('user_id'))
         assert user.activities.shape == (len(STRAVA_ACTIVITIES),1)
         assert user.activities['start_date'].values.tolist() == [x.get('start_date') for x in STRAVA_ACTIVITIES]
 
     def test_activities_dataframe_has_id_as_index(self,enable_httpretty,set_get_token_to_return_token_list,set_get_key_to_ok_data,set_strava_activities_ok_data):
-        user = runalytics.helpers.JustleticUser(TOKEN_LIST[2].get('user_id'))
+        user = runalytics.helpers.JustleticUser(TOKEN_LIST['tokens'][2].get('user_id'))
         assert user.activities.index.tolist() == [x.get('id') for x in STRAVA_ACTIVITIES]
 
     def test_stores_activities_dataframe_ordered_by_start_date(self,enable_httpretty,set_get_token_to_return_token_list,set_get_key_to_ok_data,set_strava_activities_ok_data):
-        user = runalytics.helpers.JustleticUser(TOKEN_LIST[2].get('user_id'))
+        user = runalytics.helpers.JustleticUser(TOKEN_LIST['tokens'][2].get('user_id'))
         assert user.activities['start_date'].is_monotonic_decreasing
 
     def test_raises_exception_if_user_does_not_exist(self,enable_httpretty,set_get_token_to_return_token_list,set_get_key_to_ok_data):
@@ -103,15 +103,15 @@ class TestJustleticUserInit(object):
 
     def test_raise_exception_if_key_request_fails(self,enable_httpretty,set_get_token_to_return_token_list,set_get_key_to_return_401_error):
         with pytest.raises(Exception):
-            user = runalytics.helpers.JustleticUser(TOKEN_LIST[2].get('user_id'))
+            user = runalytics.helpers.JustleticUser(TOKEN_LIST['tokens'][2].get('user_id'))
 
     def test_raise_exception_if_token_request_fails(self,enable_httpretty,set_get_token_to_return_401_error):
         with pytest.raises(Exception):
-            user = runalytics.helpers.JustleticUser(TOKEN_LIST[2].get('user_id'))
+            user = runalytics.helpers.JustleticUser(TOKEN_LIST['tokens'][2].get('user_id'))
 
     def test_raise_exception_if_activities_request_fails(self,enable_httpretty,set_get_token_to_return_token_list,set_get_key_to_ok_data,set_strava_activities_to_return_404_error):
         with pytest.raises(Exception):
-            user = runalytics.helpers.JustleticUser(TOKEN_LIST[2].get('user_id'))
+            user = runalytics.helpers.JustleticUser(TOKEN_LIST['tokens'][2].get('user_id'))
 
     def test_stores_user_id(self,enable_httpretty,set_get_token_to_return_token_list,set_get_key_to_ok_data,set_strava_activities_ok_data):
         user = runalytics.helpers.JustleticUser(2)
@@ -121,14 +121,14 @@ class TestGetActivity(object):
     """Tests for activity method of user class"""
 
     def test_sends_get_request_to_strava(self,enable_httpretty,set_get_token_to_return_token_list,set_get_key_to_ok_data,set_strava_activities_ok_data, set_strava_streams_ok_data):
-        user = runalytics.helpers.JustleticUser(TOKEN_LIST[2].get('user_id'))
+        user = runalytics.helpers.JustleticUser(TOKEN_LIST['tokens'][2].get('user_id'))
         returned_activity = user.activity(-1)
         req = httpretty.HTTPretty.latest_requests[-1]
         requested_url = req.headers.get('Host') + req.path
         assert f"www.strava.com/api/v3/activities/{STRAVA_ACTIVITIES[1].get('id')}/streams" in requested_url
 
     def test_key_by_type_true_in_query(self,enable_httpretty,set_get_token_to_return_token_list,set_get_key_to_ok_data,set_strava_activities_ok_data, set_strava_streams_ok_data):
-        user = runalytics.helpers.JustleticUser(TOKEN_LIST[2].get('user_id'))
+        user = runalytics.helpers.JustleticUser(TOKEN_LIST['tokens'][2].get('user_id'))
         returned_activity = user.activity(-1)
         req = httpretty.HTTPretty.latest_requests[-1]
         request_payload = req.querystring
@@ -136,7 +136,7 @@ class TestGetActivity(object):
         assert request_payload.get('key_by_type')[0] == "true"
     
     def test_keys_in_query(self,enable_httpretty,set_get_token_to_return_token_list,set_get_key_to_ok_data,set_strava_activities_ok_data, set_strava_streams_ok_data):
-        user = runalytics.helpers.JustleticUser(TOKEN_LIST[2].get('user_id'))
+        user = runalytics.helpers.JustleticUser(TOKEN_LIST['tokens'][2].get('user_id'))
         returned_activity = user.activity(-1)
         req = httpretty.HTTPretty.latest_requests[-1]
         request_payload = req.querystring
@@ -145,12 +145,12 @@ class TestGetActivity(object):
             assert key in request_payload.get('keys')[0]
 
     def test_returns_pandas_dataframe(self,enable_httpretty,set_get_token_to_return_token_list,set_get_key_to_ok_data,set_strava_activities_ok_data, set_strava_streams_ok_data):
-        user = runalytics.helpers.JustleticUser(TOKEN_LIST[2].get('user_id'))
+        user = runalytics.helpers.JustleticUser(TOKEN_LIST['tokens'][2].get('user_id'))
         returned_activity = user.activity(-1)
         assert type(returned_activity) is pd.DataFrame
 
     def test_returned_dataframe_has_expected_columns(self,enable_httpretty,set_get_token_to_return_token_list,set_get_key_to_ok_data,set_strava_activities_ok_data, set_strava_streams_ok_data):
-        user = runalytics.helpers.JustleticUser(TOKEN_LIST[2].get('user_id'))
+        user = runalytics.helpers.JustleticUser(TOKEN_LIST['tokens'][2].get('user_id'))
         returned_activity = user.activity(-1)
         for key in STRAVA_STREAMS.keys():
             if key != 'latlng':
@@ -159,13 +159,13 @@ class TestGetActivity(object):
         assert 'long' in returned_activity.columns
 
     def test_returned_dataframe_has_expected_number_of_rows(self,enable_httpretty,set_get_token_to_return_token_list,set_get_key_to_ok_data,set_strava_activities_ok_data, set_strava_streams_ok_data):
-        user = runalytics.helpers.JustleticUser(TOKEN_LIST[2].get('user_id'))
+        user = runalytics.helpers.JustleticUser(TOKEN_LIST['tokens'][2].get('user_id'))
         returned_activity = user.activity(-1)
         for key in STRAVA_STREAMS.keys():
             assert returned_activity.shape[0] == len(STRAVA_STREAMS[key]['data'])
     
     def test_returned_dataframe_includes_activity_id(self,enable_httpretty,set_get_token_to_return_token_list,set_get_key_to_ok_data,set_strava_activities_ok_data, set_strava_streams_ok_data):
-        user = runalytics.helpers.JustleticUser(TOKEN_LIST[2].get('user_id'))
+        user = runalytics.helpers.JustleticUser(TOKEN_LIST['tokens'][2].get('user_id'))
         returned_activity = user.activity(-1)
         expected_series = pd.Series(
             np.repeat(STRAVA_ACTIVITIES[-1].get('id'),len(STRAVA_STREAMS['time']['data']))
@@ -173,7 +173,7 @@ class TestGetActivity(object):
         assert returned_activity['id'].values.tolist() == expected_series.values.tolist() 
     
     def test_returned_dataframe_includes_all_strava_data_except_latlng(self,enable_httpretty,set_get_token_to_return_token_list,set_get_key_to_ok_data,set_strava_activities_ok_data, set_strava_streams_ok_data):
-        user = runalytics.helpers.JustleticUser(TOKEN_LIST[2].get('user_id'))
+        user = runalytics.helpers.JustleticUser(TOKEN_LIST['tokens'][2].get('user_id'))
         returned_activity = user.activity(-1)
         for key in STRAVA_STREAMS.keys():
             if key != 'latlng':
@@ -182,7 +182,7 @@ class TestGetActivity(object):
                 assert returned_values == expected_values
 
     def test_returned_dataframe_includes_lat_and_long_series(self,enable_httpretty,set_get_token_to_return_token_list,set_get_key_to_ok_data,set_strava_activities_ok_data, set_strava_streams_ok_data):
-        user = runalytics.helpers.JustleticUser(TOKEN_LIST[2].get('user_id'))
+        user = runalytics.helpers.JustleticUser(TOKEN_LIST['tokens'][2].get('user_id'))
         returned_activity = user.activity(-1)
         
         returned_lat = returned_activity['lat'].values.tolist()
@@ -194,7 +194,7 @@ class TestGetActivity(object):
         assert returned_long == expected_long
 
     def test_returned_dataframe_doesnt_include_latlng_series(self,enable_httpretty,set_get_token_to_return_token_list,set_get_key_to_ok_data,set_strava_activities_ok_data, set_strava_streams_ok_data):
-        user = runalytics.helpers.JustleticUser(TOKEN_LIST[2].get('user_id'))
+        user = runalytics.helpers.JustleticUser(TOKEN_LIST['tokens'][2].get('user_id'))
         returned_activity = user.activity(-1)
         assert 'latlng' not in returned_activity.columns
 
