@@ -51,6 +51,7 @@ pytz==2018.5
 pyzmq==17.1.0
 qtconsole==4.3.1
 requests==2.19.1
+ruptures==1.0.1
 scipy==1.1.0
 Send2Trash==1.5.0
 simplegeneric==0.8.1
